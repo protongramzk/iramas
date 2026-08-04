@@ -106,7 +106,7 @@
         {/if}
       </div>
       <p class="text-sm text-neutral-400 mt-0.5 truncate">
-        {$currentTrack ? ($currentTrack.artist || 'Unknown Artist') : 'Scan directory in Library'}
+        {$currentTrack ? ($currentTrack.artist || 'Unknown Artist') : 'Upload music in Library'}
       </p>
     </div>
   </div>

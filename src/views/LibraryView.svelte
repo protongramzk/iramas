@@ -6,7 +6,7 @@
   import { loadAndPlayTrack, setQueue, addToQueue, playNextInQueue, queue, currentQueueIndex } from '../lib/dsp/audioCore';
   import TrackCard from '../lib/components/TrackCard.svelte';
   import {
-    FolderPlus, Search, ListMusic, RefreshCw, Layers, Check, Trash2, Heart, Plus, FolderHeart
+    FolderPlus, Search, ListMusic, RefreshCw, Layers, Check, Trash2, Heart, Plus, FolderHeart, Upload
   } from 'lucide-svelte';
 
   let tracks = [];
@@ -87,7 +87,16 @@
 
     const musicFiles = files.filter(f => {
       const name = f.name.toLowerCase();
-      return name.endsWith('.mp3') || name.endsWith('.flac') || name.endsWith('.wav') || name.endsWith('.ogg') || name.endsWith('.m4a');
+      return f.type.startsWith('audio/') ||
+             name.endsWith('.mp3') ||
+             name.endsWith('.aac') ||
+             name.endsWith('.wav') ||
+             name.endsWith('.flac') ||
+             name.endsWith('.ogg') ||
+             name.endsWith('.m4a') ||
+             name.endsWith('.mp4') ||
+             name.endsWith('.wma') ||
+             name.endsWith('.webm');
     });
 
     scanning = true;
@@ -172,13 +181,12 @@
 </script>
 
 <div class="flex flex-col h-full bg-neutral-950 text-neutral-100 p-6 pb-24 overflow-y-auto">
-  <!-- Hidden Fallback Directory picker input -->
+  <!-- Hidden Upload File picker input -->
   <input
     type="file"
     bind:this={fallbackInput}
     on:change={handleFallbackSelect}
-    webkitdirectory
-    directory
+    accept="audio/*,.mp3,.aac,.wav,.flac,.ogg,.m4a"
     multiple
     class="hidden"
   />
@@ -190,18 +198,18 @@
       <p class="text-xs text-neutral-400 mt-0.5">Manage Your Music Database</p>
     </div>
 
-    <!-- Scanner Core trigger -->
+    <!-- Upload Music Trigger -->
     <button
-      on:click={handleScan}
+      on:click={() => fallbackInput.click()}
       disabled={scanning}
       class="flex items-center gap-2 px-4 py-2.5 bg-primary text-neutral-950 hover:bg-emerald-400 disabled:opacity-50 text-xs font-bold rounded-xl shadow-lg transition-all duration-300"
     >
       {#if scanning}
         <RefreshCw size={14} class="animate-spin" />
-        <span>Scanning...</span>
+        <span>Uploading...</span>
       {:else}
-        <FolderPlus size={14} />
-        <span>Scan Folder</span>
+        <Upload size={14} />
+        <span>Upload Music</span>
       {/if}
     </button>
   </div>
@@ -260,7 +268,7 @@
         <div class="flex flex-col items-center justify-center py-16 text-center text-neutral-500">
           <ListMusic size={36} class="mb-3 text-neutral-600" />
           <p class="text-xs font-semibold">No music tracks found</p>
-          <p class="text-[10px] mt-1 text-neutral-600">Scan folders to index local files.</p>
+          <p class="text-[10px] mt-1 text-neutral-600">Upload music to index local files.</p>
         </div>
       {:else}
         <div class="flex flex-col gap-2.5">

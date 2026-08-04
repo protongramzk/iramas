@@ -31,8 +31,9 @@ async function traverseDirectory(dirHandle, fileList) {
       const nameLower = entry.name.toLowerCase();
       if (
         nameLower.endsWith('.mp3') ||
-        nameLower.endsWith('.flac') ||
+        nameLower.endsWith('.aac') ||
         nameLower.endsWith('.wav') ||
+        nameLower.endsWith('.flac') ||
         nameLower.endsWith('.ogg') ||
         nameLower.endsWith('.m4a')
       ) {
