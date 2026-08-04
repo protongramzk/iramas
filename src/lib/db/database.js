@@ -36,6 +36,11 @@ export async function initSettings() {
     await db.settings.put({ key: 'volumeNormalization', value: false });
   }
 
+  const wakeLockSetting = await db.settings.get('wakeLockEnabled');
+  if (!wakeLockSetting) {
+    await db.settings.put({ key: 'wakeLockEnabled', value: true });
+  }
+
   // Seed default EQ presets if they don't exist
   const count = await db.eqPresets.count();
   if (count === 0) {

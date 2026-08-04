@@ -25,6 +25,56 @@ let originalQueue = []; // Holds the unmodified queue for toggleShuffle
 export const sleepTimerRemaining = writable(null); // seconds or null
 let sleepTimerId = null;
 
+// Screen Wake Lock state
+let wakeLock = null;
+
+export async function requestWakeLock() {
+  try {
+    const wakeLockSetting = await db.settings.get('wakeLockEnabled');
+    const enabled = wakeLockSetting ? wakeLockSetting.value : true;
+    if (!enabled) return;
+
+    if ('wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log("Screen Wake Lock acquired.");
+      wakeLock.addEventListener('release', () => {
+        wakeLock = null;
+        console.log("Screen Wake Lock released.");
+      });
+    }
+  } catch (err) {
+    console.warn("Failed to acquire Screen Wake Lock:", err);
+  }
+}
+
+export function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().then(() => {
+      wakeLock = null;
+    }).catch(err => {
+      console.warn("Failed to release Screen Wake Lock:", err);
+    });
+  }
+}
+
+// Re-request wake lock on page visibility change and sync progress
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+      if (get(isPlaying)) {
+        await requestWakeLock();
+      }
+      // Force sync progress on returning to app
+      if (activeHowl && activeHowl.playing()) {
+        const seekPos = activeHowl.seek() || 0;
+        currentTime.set(seekPos);
+        const totalDur = activeHowl.duration() || 1;
+        progress.set((seekPos / totalDur) * 100);
+      }
+    }
+  });
+}
+
 // Initialize Web Audio source connection to Tone.js DSP
 let audioConnected = false;
 function connectHowlerToTone() {
@@ -137,17 +187,29 @@ export async function loadAndPlayTrack(track, queueIndex = -1) {
       isPlaying.set(true);
       startProgressTimer();
       updateMediaSession(track);
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'playing';
+      }
+      requestWakeLock();
 
       // Update play count in DB
       db.tracks.update(track.id, { playCount: (track.playCount || 0) + 1 }).catch(() => {});
     },
     onpause: () => {
       isPlaying.set(false);
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+      }
+      releaseWakeLock();
     },
     onstop: () => {
       isPlaying.set(false);
       progress.set(0);
       currentTime.set(0);
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'none';
+      }
+      releaseWakeLock();
     },
     onend: () => {
       handleTrackEnd();
@@ -188,6 +250,7 @@ function handleTrackEnd() {
 export function play() {
   if (activeHowl) {
     activeHowl.play();
+    requestWakeLock();
   } else {
     // Play first track in queue if stopped
     const q = get(queue);
@@ -200,12 +263,14 @@ export function play() {
 export function pause() {
   if (activeHowl) {
     activeHowl.pause();
+    releaseWakeLock();
   }
 }
 
 export function stop() {
   if (activeHowl) {
     activeHowl.stop();
+    releaseWakeLock();
   }
 }
 

@@ -7,6 +7,17 @@
   let animationId;
   let customRenderer = null;
   let analyser = eqChain.getAnalyser();
+  let isVisible = true;
+
+  function handleVisibilityChange() {
+    isVisible = document.visibilityState === 'visible';
+    if (isVisible) {
+      cancelAnimationFrame(animationId);
+      draw();
+    } else {
+      cancelAnimationFrame(animationId);
+    }
+  }
 
   // Load selected custom visualizer from IndexedDB
   async function loadSelectedVisualizer() {
@@ -32,6 +43,7 @@
 
   // Draw loop
   function draw() {
+    if (!isVisible) return;
     animationId = requestAnimationFrame(draw);
 
     if (!canvasElement) return;
@@ -105,12 +117,14 @@
     await loadSelectedVisualizer();
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     draw();
   });
 
   onDestroy(() => {
     cancelAnimationFrame(animationId);
     window.removeEventListener('resize', resizeCanvas);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
   });
 </script>
 

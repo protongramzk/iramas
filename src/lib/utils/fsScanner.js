@@ -52,6 +52,17 @@ export async function processFilesBulk(files, onProgress) {
 
   for (const file of files) {
     try {
+      // Prevent duplicate track insertion based on unique name and file size matching
+      const existing = await db.tracks.where('name').equals(file.name).first();
+      if (existing && existing.size === file.size) {
+        console.log("Track already exists in library, skipping duplicates:", file.name);
+        processed++;
+        if (onProgress) {
+          onProgress(processed, total);
+        }
+        continue;
+      }
+
       // Parse ID3 metadata
       const meta = await parseID3(file);
 
