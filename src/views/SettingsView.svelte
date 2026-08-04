@@ -9,6 +9,7 @@
   let storageUsed = '0 B';
   let isCrossfade = false;
   let isNormalize = false;
+  let isWakeLockEnabled = true;
   let activeThemeId = 'dark-cassava';
   let customVisFile;
 
@@ -50,6 +51,16 @@
       isNormalize = vn.value;
       volumeNormalization.set(isNormalize);
     }
+
+    const wl = await db.settings.get('wakeLockEnabled');
+    if (wl) {
+      isWakeLockEnabled = wl.value;
+    }
+  }
+
+  async function toggleWakeLock() {
+    isWakeLockEnabled = !isWakeLockEnabled;
+    await db.settings.put({ key: 'wakeLockEnabled', value: isWakeLockEnabled });
   }
 
   function formatBytes(bytes) {
@@ -174,7 +185,7 @@
           class="flex items-center justify-between p-3.5 rounded-xl border text-left text-xs font-semibold transition-all duration-200 {activeThemeId === t.id ? 'bg-primary/5 border-primary text-primary' : 'bg-neutral-900/60 border-neutral-800 hover:border-neutral-700/80 text-neutral-300'}"
         >
           <div class="flex items-center gap-2.5 truncate">
-            <span class="w-3 h-3 rounded-full border border-neutral-800" style="background-color: {t.accent}" />
+            <span class="w-3 h-3 rounded-full border border-neutral-800" style="background-color: {t.accent}"></span>
             <span class="truncate">{t.name}</span>
           </div>
           {#if activeThemeId === t.id}
@@ -222,7 +233,38 @@
           {/if}
         </button>
       </div>
+
+      <!-- Background Playback Optimizer (Wake Lock) toggle -->
+      <div class="flex items-center justify-between border-t border-neutral-900 pt-4">
+        <div>
+          <h4 class="text-sm font-semibold text-neutral-200">Background Playback Optimizer</h4>
+          <p class="text-[10px] text-neutral-500 mt-0.5">Uses Wake Lock API to prevent audio interruption when screen locks</p>
+        </div>
+        <button on:click={toggleWakeLock} class="text-neutral-400 hover:text-white transition-colors">
+          {#if isWakeLockEnabled}
+            <ToggleRight size={32} class="text-primary" />
+          {:else}
+            <ToggleLeft size={32} />
+          {/if}
+        </button>
+      </div>
     </div>
+  </div>
+
+  <!-- Background Playback Instructions Info Card -->
+  <div class="bg-neutral-900/40 border border-neutral-800 rounded-2xl p-5 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+      <Settings size={16} class="text-primary" />
+      <span class="text-xs font-bold tracking-wider text-neutral-400 uppercase">Background Play Guide</span>
+    </div>
+    <p class="text-[10px] text-neutral-500 mb-2 leading-relaxed">
+      To ensure uninterrupted playback when your mobile screen is locked or the browser is in the background:
+    </p>
+    <ul class="list-disc list-inside text-[10px] text-neutral-500 space-y-1.5 pl-1.5">
+      <li>Set your mobile browser app's battery usage setting to <span class="text-neutral-300 font-semibold">"Unrestricted"</span> (disable battery optimization).</li>
+      <li>Enable the <span class="text-neutral-300 font-semibold">Background Playback Optimizer</span> above to leverage Screen Wake Locks.</li>
+      <li>Use the OS lock screen or bluetooth controls fully synced via Media Session API.</li>
+    </ul>
   </div>
 
   <!-- Visualizer Importer Custom JS script -->
