@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
   import {
     currentTrack, isPlaying, progress, duration, currentTime,
     play, pause, stop, seek, setVolume, volume, playNext, playPrev,
@@ -63,7 +64,7 @@
       </button>
 
       {#if showTimerSelect}
-        <div class="absolute right-0 mt-2 w-48 bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl z-50 p-1 flex flex-col gap-1">
+        <div transition:scale={{ duration: 120, start: 0.95 }} class="absolute right-0 mt-2 w-48 bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl z-50 p-1 flex flex-col gap-1">
           <button on:click={() => setTimer(15)} class="px-3 py-2 text-left text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg transition-colors">15 Minutes</button>
           <button on:click={() => setTimer(30)} class="px-3 py-2 text-left text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg transition-colors">30 Minutes</button>
           <button on:click={() => setTimer(45)} class="px-3 py-2 text-left text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg transition-colors">45 Minutes</button>

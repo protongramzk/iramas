@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
   import { db } from '../lib/db/database';
   import { scanFolder, processFilesBulk } from '../lib/utils/fsScanner';
   import { loadAndPlayTrack, setQueue, addToQueue, playNextInQueue, queue, currentQueueIndex } from '../lib/dsp/audioCore';
@@ -370,8 +371,8 @@
 
   <!-- Create Playlist modal backdrop -->
   {#if showPlaylistModal}
-    <div class="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
-      <div class="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+    <div transition:fade={{ duration: 150 }} class="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+      <div transition:scale={{ duration: 150, start: 0.9 }} class="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
         <h3 class="text-sm font-bold text-neutral-100 mb-4">Create Playlist</h3>
         <input
           type="text"

@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
   import { eqChain } from '../lib/dsp/eqChain';
   import { db } from '../lib/db/database';
   import EqSlider from '../lib/components/EqSlider.svelte';
@@ -180,8 +181,8 @@
 
   <!-- Modal backdrop -->
   {#if showSaveModal}
-    <div class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
-      <div class="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+    <div transition:fade={{ duration: 150 }} class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+      <div transition:scale={{ duration: 150, start: 0.9 }} class="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
         <h3 class="text-sm font-bold text-neutral-100 mb-4">Save EQ Preset</h3>
         <input
           type="text"

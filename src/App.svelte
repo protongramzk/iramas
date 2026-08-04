@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { fade } from 'svelte/transition';
   import { db, initSettings } from './lib/db/database';
   import Navbar from './lib/components/Navbar.svelte';
   import PlayerView from './views/PlayerView.svelte';
@@ -58,13 +59,21 @@
     <!-- Screen View Router Container -->
     <main class="flex-1 w-full max-w-md mx-auto relative overflow-hidden bg-neutral-950/20 shadow-2xl">
       {#if currentView === 'player'}
-        <PlayerView />
+        <div class="h-full w-full absolute inset-0" transition:fade={{ duration: 150 }}>
+          <PlayerView />
+        </div>
       {:else if currentView === 'equalizer'}
-        <EqualizerView />
+        <div class="h-full w-full absolute inset-0" transition:fade={{ duration: 150 }}>
+          <EqualizerView />
+        </div>
       {:else if currentView === 'library'}
-        <LibraryView />
+        <div class="h-full w-full absolute inset-0" transition:fade={{ duration: 150 }}>
+          <LibraryView />
+        </div>
       {:else if currentView === 'settings'}
-        <SettingsView />
+        <div class="h-full w-full absolute inset-0" transition:fade={{ duration: 150 }}>
+          <SettingsView />
+        </div>
       {/if}
     </main>
 
